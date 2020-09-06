@@ -9,14 +9,14 @@ import requests
 
 def get_headers():
 	headers = {
-		'Host': "app.poizon.com",
-		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)"
-									" Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.4.501 NetType/WIFI "
-									"MiniProgramEnv/Windows WindowsWechat",
+		# 'Host': "app.poizon.com",
+		'platform': 'h5',
+		'User-Agent': "Mozilla/5.0 (Linux; Android 6.0.1; MuMu Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 MicroMessenger/7.0.10.1580(0x27000A59) Process/appbrand0 NetType/WIFI Language/zh_CN ABI/arm32",
 		'appid': "wxapp",
 		'appversion': "4.4.0",
-		'content-type': "application/x-www-form-urlencoded",
-		'Accept-Encoding': "gzip, deflate",
+		'content-type': 'application/json',
+		# 'content-type': "application/x-www-form-urlencoded",
+		'Accept-Encoding': "gzip",
 		'Accept': "*/*",
 	}
 	return headers
@@ -47,6 +47,6 @@ def get_serie_page_url(unionId, page=0):
 		sign = ctx.call('getSign',
 										'catId{}limit20page{}sortMode{}sortType{}titleunionId{}19bc545a393a25177083d4a748807cc0'
 										.format(1, page, sortMode, sortType, unionId))
-		#https://app.poizon.com/api/v1/h5/search/fire/search/list?title=&page=0&sortType=0&sortMode=1&limit=20&catId=1&unionId=1&sign=63531b2336752bc5e22fa71854f4f448
+		# https://app.poizon.com/api/v1/h5/search/fire/search/list?title=&page=0&sortType=0&sortMode=1&limit=20&catId=1&unionId=1&sign=63531b2336752bc5e22fa71854f4f448
 		return 'https://app.poizon.com/api/v1/h5/search/fire/search/list?title=&page={}&sortType={}&sortMode={}&limit=20&catId=1&unionId={}&sign={}' \
 			.format(page, sortType, sortMode, unionId, sign)

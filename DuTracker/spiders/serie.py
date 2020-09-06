@@ -15,9 +15,9 @@ from DuTracker.utils.urls import get_headers as headers
 
 class SerieSpider(scrapy.Spider):
 	name = 'serie'
-	allowed_domains = ['app.poizon.com']
+	allowed_domains = ['app.dewu.com']
 	start_urls = [
-		'https://app.poizon.com/api/v1/h5/product/fire/search/getCategoryDetail?catId=1&sign=0efcd8daeaac723e588568e45424a7c3'
+		'https://app.dewu.com/api/v1/h5/commodity/fire/search/doCategoryDetail'
 	]
 	custom_settings = {
 		'ITEM_PIPELINES': {
@@ -32,7 +32,9 @@ class SerieSpider(scrapy.Spider):
 	def start_requests(self):
 		log.info('获取系列列表')
 		for url in self.start_urls:
-			yield Request(url, dont_filter=True, callback=self.parse_serieList, headers=headers())
+			yield Request(url, method='POST', dont_filter=True,
+										body='{"sign":"0efcd8daeaac723e588568e45424a7c3","catId":1}',
+										callback=self.parse_serieList, headers=headers())
 
 	@handle_parse_exception
 	def parse_serieList(self, response):
@@ -46,7 +48,7 @@ class SerieSpider(scrapy.Spider):
 				log.success(f'系列：{name} 编号：{unionId}')
 		if not self.auto:
 			ids = prompt('输入需要爬取的系列编号', default='').strip().split(' ')
-			if ids == ['']: return IgnoreRequest()
+			if ids==['']: return IgnoreRequest()
 		else:
 			ids = self.Ids
 			if not ids: return IgnoreRequest()
@@ -68,7 +70,7 @@ class SerieSpider(scrapy.Spider):
 		name = response.meta.get('name')
 
 		num = data['total']
-		page = math.ceil(num / 20)
+		page = math.ceil(num/20)
 		log.success(f'系列：{name} 编号：{unionId} 商品总数：{num} 页面数：{page}')
 
 		for page in range(1, page + 1):

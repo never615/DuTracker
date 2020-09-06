@@ -23,7 +23,7 @@
 
 ## Getting started
 1. `docker-compose up -d`启动程序
-2. 访问:`http://localhost:3000/`配置influxDB,如图:
+2. 访问: `http://localhost:3000/` 配置influxDB,如图:
 ![](http://easy-file.never615.com/upic/068VIJ.png)
 3. 从[template.json](./template.json)导入DashBoard
 4. 利用抓包工具获取 *毒App内:购买-分类-品牌/系列-任意子项(Nike,Converse)* 访问的URL,替换`DuTracker/utils/urls.py`中的信息

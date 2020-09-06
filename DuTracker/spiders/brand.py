@@ -15,15 +15,14 @@ from DuTracker.utils.urls import get_headers as headers
 
 class BrandSpider(scrapy.Spider):
 	name = 'brand'
-	allowed_domains = ['app.poizon.com']
+	allowed_domains = ['app.dewu.com']
 	start_urls = [
-		'https://app.poizon.com/api/v1/h5/product/fire/search/getCategoryDetail?catId=0&sign=4ff93b98af1253fe192ff1328ed09081'
+		'https://app.dewu.com/api/v1/h5/commodity/fire/search/doCategoryDetail'
 	]
 	custom_settings = {
 		'ITEM_PIPELINES': {
 			'DuTracker.pipelines.SaveProductId': 300,
 		}
-
 	}
 	brandIds = {}
 	Ids = []
@@ -32,9 +31,12 @@ class BrandSpider(scrapy.Spider):
 	def start_requests(self):
 		log.info('获取品牌列表')
 		for url in self.start_urls:
-			yield Request(url, dont_filter=True, callback=self.parse_brandList, meta={
-				'dont_retry': True
-			}, headers=headers())
+			yield Request(url, dont_filter=True,
+										method='POST',
+										body='{"sign":"4ff93b98af1253fe192ff1328ed09081","catId":0}',
+										callback=self.parse_brandList,
+										meta={'dont_retry': True},
+										headers=headers())
 
 	@handle_parse_exception
 	def parse_brandList(self, response):
@@ -47,7 +49,7 @@ class BrandSpider(scrapy.Spider):
 
 		if not self.auto:
 			ids = prompt('输入需要爬取的品牌编号', default='').strip().split(' ')
-			if ids == ['']: return IgnoreRequest()
+			if ids==['']: return IgnoreRequest()
 		else:
 			ids = self.Ids
 			if not ids: return IgnoreRequest()
@@ -69,7 +71,7 @@ class BrandSpider(scrapy.Spider):
 		name = response.meta.get('name')
 
 		num = data['total']
-		page = math.ceil(num / 20)
+		page = math.ceil(num/20)
 		log.success(f'品牌：{name} 编号：{unionId} 商品总数：{num} 页面数：{page}')
 
 		for page in range(1, page + 1):

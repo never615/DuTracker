@@ -20,19 +20,26 @@ from DuTracker.utils.urls import get_headers as headers
 # 				 f'source=shareDetail&' \
 # 				 f'sign={result}'
 
-def get_product_info_url(productId):
+def get_product_info_url(spuId):
 	# 商品详情
 	# log.info('商品详情url')
-	with open('DuTracker/sign/sign.js', 'r', encoding='utf-8') as f:
-		all_ = f.read()
-		ctx = execjs.compile(all_)
-		sign = ctx.call('getSign',
-										'productId{}productSourceNamewx19bc545a393a25177083d4a748807cc0'.format(productId))
+	# with open('DuTracker/sign/sign.js', 'r', encoding='utf-8') as f:
+	# 	all_ = f.read()
+	# 	ctx = execjs.compile(all_)
+	# 	sign = ctx.call('getSign',
+	# 									'productSourceNamepropertyValueId0spuId{}19bc545a393a25177083d4a748807cc0'.format(spuId))
 
-		product_detail_url = 'https://app.poizon.com/api/v1/h5/index/fire/flow/product/detail?' \
-												 'productId={}&productSourceName=wx&sign={}'.format(productId, sign)
-		# log.info(f'商品详情url: {product_detail_url}')
-		return product_detail_url
+	# https://app.poizon.com/api/v1/h5/activity/fire/activity-platform/product/feeds/normal/detail?sign=ca3ca477c14a96152db146dc05223bbf
+	# https://app.dewu.com/api/v1/h5/index/fire/flow/product/detail
+	product_detail_url = 'https://app.dewu.com/api/v1/h5/index/fire/flow/product/detail'
+	# body = {
+	# 	"spuId": spuId,
+	# 	"productSourceName": "",
+	# 	"propertyValueId": "0"
+	# }
+
+	# log.info(f'商品详情url: {product_detail_url}')
+	return product_detail_url
 
 
 # URL	https://app.poizon.com/api/v1/h5/index/fire/flow/product/detail?productId=26850&productSourceName=wx&sign=0e145c5543d9751497a2e700bbea1e4c
@@ -40,8 +47,7 @@ def get_product_info_url(productId):
 
 class ProductSpider(scrapy.Spider):
 	name = 'product'
-	# allowed_domains = ['m.poizon.com']
-	# allowed_domains = ['app.poizon.com']
+	allowed_domains = ['app.dewu.com']
 	custom_settings = {
 		'ITEM_PIPELINES': {
 			'DuTracker.pipelines.SaveProductItem': 300,
@@ -57,11 +63,26 @@ class ProductSpider(scrapy.Spider):
 		log.info('获取商品详情')
 		if self.fromDB: [self.productIds.append(p.id) for p in Product.select()]
 		for pid in self.productIds:
-			log.info(f'获取商品详情request {pid}')
+			# log.info(f'获取商品详情request {pid}')
 			url = get_product_info_url(pid)
-			log.info(f'商品详情request url：{url}')
-			log.info("headers ---> {0}".format(headers()))
-			yield Request(url, headers=headers())
+			with open('DuTracker/sign/sign.js', 'r', encoding='utf-8') as f:
+				all_ = f.read()
+				ctx = execjs.compile(all_)
+				sign = ctx.call('getSign',
+												'productSourceNamepropertyValueId0spuId{}19bc545a393a25177083d4a748807cc0'.format(pid))
+			body = {
+				"spuId": pid,
+				"productSourceName": "",
+				"propertyValueId": "0",
+				"sign": sign
+			}
+			# log.info(f'商品详情request url：{url}')
+			# log.info("headers ---> {0}".format(headers()))
+			yield Request(url,
+										headers=headers(),
+										method='POST',
+										body=json.dumps(body),
+										)
 
 	@handle_parse_exception
 	def parse(self, response):

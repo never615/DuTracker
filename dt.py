@@ -33,7 +33,7 @@ def show():
     @defer.inlineCallbacks
     def crawl():
         yield runner.crawl(BrandSpider, auto=True)
-        yield runner.crawl(SerieSpider, auto=True)
+        # yield runner.crawl(SerieSpider, auto=True)
         reactor.stop()
 
     crawl()
